@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from . models import User, Event
 
 def home_page(request):
@@ -17,5 +17,12 @@ def event_page(request, pk):
     }
     return render(request, 'event.html', context)
 
-# def registratin_confirmation(request):
-#     return render()
+def registration_confirmation(request, pk):
+    event = Event.objects.get(id=pk)
+    if request.method == 'POST':
+        event.participants.add(request.user)
+        return redirect('event', pk=event.id)
+    context = {
+        'event': event,
+    }
+    return render(request, 'event_confirmation.html', context)
