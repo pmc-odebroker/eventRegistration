@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <h1>my account</h1>
+
+    <div>
+        {% for event in user.events.all %}
+        <a href="{% url 'event' event.id %}">{{event.name}}</a>
+        {% endfor %}
+    </div>
+{% endblock content %}

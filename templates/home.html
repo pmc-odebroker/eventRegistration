@@ -18,9 +18,11 @@
     <h3>Participants</h3>
     <div class="event--lists">
         {% for user in users %}
-        <div>
-            {{user.name}}
-        </div>
+        <a href="{% url 'profile' user.id %}"></a>
+            <div>
+                {{user.name}}
+            </div>
+        </a>
         {% endfor %}
     </div>
  

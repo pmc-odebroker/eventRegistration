@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from . models import User, Event
+from . models import User, Event, Submission
+from .forms import SubmissionForm
 
 def home_page(request):
     users = User.objects.filter(hackthon_participant=True)
@@ -10,10 +11,23 @@ def home_page(request):
     }
     return render(request, 'home.html', context)
 
+def account_page(request, pk):
+    user = User.objects.get(id=pk)
+    context = {
+        'user': user
+    }
+    return render(request, 'account.html', context)
+
 def event_page(request, pk):
     event = Event.objects.get(id=pk)
+    
+    registered = request.user.events.filter(id=event.id).exists()
+    submitted = Submission.objects.filter(participant=request.user, event=event).exsts()
+    print('submitted', submitted)
     context = {
         'event': event,
+        'registered': registered,
+        'submitted': submitted,
     }
     return render(request, 'event.html', context)
 
@@ -26,3 +40,29 @@ def registration_confirmation(request, pk):
         'event': event,
     }
     return render(request, 'event_confirmation.html', context)
+
+def user_page(request, pk):
+    user = User.objects.get(id=pk)
+    context = {
+        'user': user
+    }
+    return render(request, 'profile.html', context)
+
+def project_submission(request, pk):
+    event = Event.objects.get(id=pk)
+    form = SubmissionForm()
+    
+    if request.method == 'POST':
+        form = SubmissionForm(request.POST)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.participant = request.user
+            submission.event = event
+            submission.save()
+            return redirect('account')
+    
+    context = {
+        'event': event,
+        'form': form
+    }
+    return render(request, 'submit_form.html', context)
